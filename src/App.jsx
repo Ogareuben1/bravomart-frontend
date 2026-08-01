@@ -20,7 +20,23 @@ import DispatchRiderTracker from './components/DispatchRiderTracker';
 export default function App() {
   const [cartItems, setCartItems] = useState([]);
   const [activeVendor, setActiveVendor] = useState(null);
+  const [vendorProducts, setVendorProducts] = useState([]);
   const [pendingVendorsCount, setPendingVendorsCount] = useState(3);
+
+  // Handlers for vendor product lifecycle
+  const handleAddProduct = (newProduct) => {
+    setVendorProducts((prev) => [newProduct, ...prev]);
+  };
+
+  const handleDeleteProduct = (productId) => {
+    setVendorProducts((prev) => prev.filter((p) => p.id !== productId));
+  };
+
+  const handleUpdateStock = (productId, newStock) => {
+    setVendorProducts((prev) =>
+      prev.map((p) => (p.id === productId ? { ...p, stockCount: newStock } : p))
+    );
+  };
 
   return (
     <Router>
@@ -54,8 +70,33 @@ export default function App() {
 
           {/* Admin & Portal Routes */}
           <Route path="/BravoAdmin" element={<BravoAdmin />} />
-          <Route path="/BravoSuperAdmin" element={<BravoSuperAdmin />} />
-          <Route path="/AdminAiAssistant" element={<AdminAiAssistant />} />
+          
+          {/* Bravo Super Admin Route with Proper Props */}
+          <Route 
+            path="/BravoSuperAdmin" 
+            element={
+              <BravoSuperAdmin 
+                pendingVendorsCount={pendingVendorsCount}
+                setPendingVendorsCount={setPendingVendorsCount}
+                vendorProducts={vendorProducts}
+              />
+            } 
+          />
+          
+          {/* Admin AI Assistant Route with Proper Props */}
+          <Route 
+            path="/AdminAiAssistant" 
+            element={
+              <AdminAiAssistant 
+                activeVendor={activeVendor}
+                vendorProducts={vendorProducts}
+                onAddProduct={handleAddProduct}
+                onDeleteProduct={handleDeleteProduct}
+                onUpdateStock={handleUpdateStock}
+              />
+            } 
+          />
+          
           <Route path="/DispatcherPortal" element={<DispatcherPortal />} />
           <Route path="/tracker" element={<DispatchRiderTracker />} />
 

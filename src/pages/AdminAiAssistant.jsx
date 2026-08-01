@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 // 1. HELPER UTILITIES: GPS & SHIPPING COST
 // ==========================================
 
-// Calculates exact distance in kilometers using the Haversine Formula
 export function calculateGpsDistanceKm(lat1, lon1, lat2, lon2) {
   if (!lat1 || !lon1 || !lat2 || !lon2) return 0;
 
@@ -25,45 +24,64 @@ export function calculateGpsDistanceKm(lat1, lon1, lat2, lon2) {
   return parseFloat(distance.toFixed(2));
 }
 
-// Dynamic Formula: Shipping Cost = Weight (kg) * Distance (km) * Rate per kg/km
 export function calculateShippingCost({ weightKg = 1, distanceKm = 1, ratePerKgPerKm = 50 }) {
   const minDeliveryFee = 500; // Minimum delivery fee floor in Naira
   const calculatedCost = weightKg * distanceKm * ratePerKgPerKm;
   return Math.max(minDeliveryFee, Math.round(calculatedCost));
 }
 
+// Fallback dummy vendor in case activeVendor prop is not passed
+const DEFAULT_VENDOR = {
+  id: "v-demo-101",
+  shopName: "Bravo Mega Store",
+  fullName: "Demo Merchant",
+  shopAddress: "12 Marina Street, Lagos Island",
+  walletId: "BW-990231",
+  walletBalance: 150000,
+  coords: { lat: 6.4531, lng: 3.3958 }
+};
+
 // ==========================================
 // 2. MAIN ADMIN & DISPATCH COMPONENT
 // ==========================================
 
-export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddProduct, onDeleteProduct, onUpdateStock }) {
+export default function AdminAiAssistant({ 
+  activeVendor = DEFAULT_VENDOR, 
+  vendorProducts = [], 
+  onAddProduct = () => {}, 
+  onDeleteProduct = () => {}, 
+  onUpdateStock = () => {} 
+}) {
+  // Ensure safe fallback if activeVendor is explicitly passed as null
+  const vendor = activeVendor || DEFAULT_VENDOR;
+  const products = vendorProducts || [];
+
   const [activeTab, setActiveTab] = useState("ai_poster"); // 'ai_poster' | 'my_products' | 'dispatch_tracker'
 
   // Form Inputs
   const [productName, setProductName] = useState("");
   const [briefDesc, setBriefDesc] = useState("");
   const [priceIdea, setPriceIdea] = useState("");
-  const [productWeight, setProductWeight] = useState("2.5"); // Default 2.5 kg
+  const [productWeight, setProductWeight] = useState("2.5");
   const [photos, setPhotos] = useState([]);
   const [video, setVideo] = useState(null);
   const [videoError, setVideoError] = useState("");
 
   // Vendor Live GPS Coordinates State
-  const [vendorGps, setVendorGps] = useState(activeVendor?.coords || { lat: 6.4531, lng: 3.3958 }); // Default fallback: Lagos Island
+  const [vendorGps, setVendorGps] = useState(vendor.coords || { lat: 6.4531, lng: 3.3958 });
   const [isCapturingGps, setIsCapturingGps] = useState(false);
 
   // Dispatch Rider GPS Terminal States
   const [riderCoords, setRiderCoords] = useState(null);
   const [riderGpsError, setRiderGpsError] = useState("");
-  const [simulatedCustomerCoords] = useState({ lat: 6.5244, lng: 3.3792 }); // Target Delivery Address (e.g., Ikeja/Yaba)
-  const [ratePerKgKm, setRatePerKgKm] = useState(50); // Default ₦50 / kg / km
+  const [simulatedCustomerCoords] = useState({ lat: 6.5244, lng: 3.3792 });
+  const [ratePerKgKm, setRatePerKgKm] = useState(50);
 
   // AI Generation States
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiGeneratedData, setAiGeneratedData] = useState(null);
   const [isPublished, setIsPublished] = useState(false);
 
-  // Capture Vendor Physical Store GPS
   const handleCaptureVendorGps = () => {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser/device.");
@@ -86,7 +104,6 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
     );
   };
 
-  // Acquire Dispatch Rider Device GPS
   const fetchRiderLocation = () => {
     if (!navigator.geolocation) {
       setRiderGpsError("Geolocation is not supported by your device.");
@@ -113,7 +130,6 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
     }
   }, [activeTab]);
 
-  // Image Upload Handler
   const handlePhotosChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length + photos.length > 5) {
@@ -128,7 +144,6 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
     setPhotos((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Video Upload Handler
   const handleVideoChange = (e) => {
     const file = e.target.files[0];
     setVideoError("");
@@ -142,7 +157,6 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
     }
   };
 
-  // AI Auto-Fill with Location & Weight
   const handleAiAutoFill = () => {
     if (!productName && !briefDesc) {
       alert("Please enter a basic Product Name or Brief Description first!");
@@ -177,7 +191,7 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
         stockCount: 50,
         rating: 5.0,
         reviewsCount: 1,
-        vendorName: activeVendor.shopName,
+        vendorName: vendor.shopName || "Vendor Store",
         vendorRating: 4.9,
         image: photos[0] || "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80",
         additionalImages: photos,
@@ -198,14 +212,13 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
     if (!aiGeneratedData) return;
     const newProduct = {
       id: `p-vendor-${Date.now()}`,
-      vendorId: activeVendor.id,
+      vendorId: vendor.id,
       ...aiGeneratedData
     };
     onAddProduct(newProduct);
     setIsPublished(true);
   };
 
-  // Distance Metrics for Dispatch Tracker Tab
   const riderToVendorKm = riderCoords
     ? calculateGpsDistanceKm(riderCoords.lat, riderCoords.lng, vendorGps.lat, vendorGps.lng)
     : 0;
@@ -229,18 +242,17 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
       {/* Top Banner & Wallet */}
       <div style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)", color: "#fff", padding: "20px", borderRadius: "12px", marginBottom: "25px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "15px" }}>
         <div>
-          <h2 style={{ margin: 0, fontSize: "20px" }}>🏪 {activeVendor.shopName} Dashboard</h2>
+          <h2 style={{ margin: 0, fontSize: "20px" }}>🏪 {vendor.shopName} Dashboard</h2>
           <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "#94a3b8" }}>
-            Owner: {activeVendor.fullName} | Address: {activeVendor.shopAddress}
+            Owner: {vendor.fullName} | Address: {vendor.shopAddress}
           </p>
         </div>
 
-        {/* Wallet Badge */}
         <div style={{ background: "#334155", padding: "12px 20px", borderRadius: "8px", border: "1px solid #475569" }}>
           <div style={{ fontSize: "11px", color: "#cbd5e1", textTransform: "uppercase" }}>Bravo Wallet ID</div>
-          <div style={{ fontSize: "16px", fontWeight: "bold", fontFamily: "monospace", color: "#38bdf8" }}>{activeVendor.walletId}</div>
+          <div style={{ fontSize: "16px", fontWeight: "bold", fontFamily: "monospace", color: "#38bdf8" }}>{vendor.walletId}</div>
           <div style={{ fontSize: "14px", color: "#4ade80", marginTop: "2px" }}>
-            Balance: <b>₦{(activeVendor.walletBalance || 0).toLocaleString()}</b>
+            Balance: <b>₦{(vendor.walletBalance || 0).toLocaleString()}</b>
           </div>
         </div>
       </div>
@@ -257,7 +269,7 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
           onClick={() => setActiveTab("my_products")}
           style={{ padding: "10px 20px", borderRadius: "6px", border: "none", fontWeight: "bold", cursor: "pointer", background: activeTab === "my_products" ? "#2563eb" : "#f1f5f9", color: activeTab === "my_products" ? "#fff" : "#64748b" }}
         >
-          📦 Catalog ({vendorProducts.length})
+          📦 Catalog ({products.length})
         </button>
         <button
           onClick={() => setActiveTab("dispatch_tracker")}
@@ -270,13 +282,12 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
       {/* TAB 1: AI PRODUCT POSTER WITH WEIGHT & GPS */}
       {activeTab === "ai_poster" && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "25px" }}>
-          {/* Input Form */}
           <div style={{ background: "#f8fafc", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
             <h3 style={{ marginTop: 0 }}>Add New Product</h3>
 
             <div style={{ marginBottom: "12px" }}>
               <label style={{ fontSize: "12px", fontWeight: "bold", display: "block" }}>Posting Store Name (Auto)</label>
-              <input type="text" value={activeVendor.shopName} disabled style={{ width: "100%", padding: "10px", background: "#e2e8f0", borderRadius: "6px", border: "1px solid #cbd5e1", fontWeight: "bold" }} />
+              <input type="text" value={vendor.shopName} disabled style={{ width: "100%", padding: "10px", background: "#e2e8f0", borderRadius: "6px", border: "1px solid #cbd5e1", fontWeight: "bold" }} />
             </div>
 
             <div style={{ marginBottom: "12px" }}>
@@ -295,7 +306,6 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
               </div>
             </div>
 
-            {/* Shop GPS Location Capture */}
             <div style={{ background: "#f1f5f9", padding: "10px", borderRadius: "8px", border: "1px solid #cbd5e1", marginBottom: "12px" }}>
               <div style={{ fontSize: "12px", fontWeight: "bold", color: "#334155", marginBottom: "4px" }}>📍 Vendor Shop Pickup Coordinates:</div>
               <div style={{ fontSize: "13px", fontFamily: "monospace", color: "#0284c7" }}>
@@ -311,7 +321,6 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
               <textarea rows="2" value={briefDesc} onChange={(e) => setBriefDesc(e.target.value)} placeholder="Key features, warranty, condition..." style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e1" }} />
             </div>
 
-            {/* Photos */}
             <div style={{ marginBottom: "12px" }}>
               <label style={{ fontSize: "12px", fontWeight: "bold", display: "block" }}>Product Photos (Up to 5 images)</label>
               <input type="file" accept="image/*" multiple onChange={handlePhotosChange} disabled={photos.length >= 5} />
@@ -325,7 +334,6 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
               </div>
             </div>
 
-            {/* Video */}
             <div style={{ marginBottom: "15px" }}>
               <label style={{ fontSize: "12px", fontWeight: "bold", display: "block" }}>Product Video (Optional, max 10MB)</label>
               <input type="file" accept="video/*" onChange={handleVideoChange} />
@@ -338,7 +346,6 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
             </button>
           </div>
 
-          {/* AI Preview */}
           <div style={{ background: "#fff", padding: "20px", borderRadius: "12px", border: "2px dashed #7c3aed" }}>
             <h3 style={{ marginTop: 0, color: "#7c3aed" }}>AI Generated App Listing Preview</h3>
 
@@ -381,13 +388,13 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
       {/* TAB 2: STORE CATALOG */}
       {activeTab === "my_products" && (
         <div style={{ background: "#fff", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
-          <h3>📦 Active Products in {activeVendor.shopName}</h3>
+          <h3>📦 Active Products in {vendor.shopName}</h3>
 
-          {vendorProducts.length === 0 ? (
+          {products.length === 0 ? (
             <p style={{ color: "#64748b" }}>No products added yet.</p>
           ) : (
             <div style={{ display: "grid", gap: "15px" }}>
-              {vendorProducts.map((product) => (
+              {products.map((product) => (
                 <div key={product.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px", border: "1px solid #e2e8f0", borderRadius: "8px" }}>
                   <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
                     <img src={product.image} alt={product.title} style={{ width: "60px", height: "60px", objectFit: "cover", borderRadius: "6px" }} />
@@ -434,7 +441,6 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
             </div>
           )}
 
-          {/* Location Bar */}
           <div style={{ background: "#f8fafc", padding: "15px", borderRadius: "8px", border: "1px solid #e2e8f0", marginBottom: "20px" }}>
             <span style={{ fontSize: "12px", color: "#64748b", display: "block" }}>Rider Device Live GPS Signals:</span>
             <strong style={{ fontSize: "15px", fontFamily: "monospace", color: "#0f172a" }}>
@@ -442,13 +448,11 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
             </strong>
           </div>
 
-          {/* Route Metrics Cards */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "20px" }}>
-            {/* Pickup Segment */}
             <div style={{ border: "1px solid #cbd5e1", padding: "15px", borderRadius: "8px", background: "#faf5ff" }}>
               <div style={{ fontSize: "12px", color: "#7c3aed", fontWeight: "bold" }}>STEP 1: Pickup Location (Seller Shop)</div>
               <div style={{ fontSize: "20px", fontWeight: "bold", color: "#5b21b6", margin: "6px 0" }}>{riderToVendorKm} km away</div>
-              <p style={{ margin: "0 0 10px 0", fontSize: "12px", color: "#64748b" }}>Shop: {activeVendor.shopName} ({vendorGps.lat.toFixed(3)}, {vendorGps.lng.toFixed(3)})</p>
+              <p style={{ margin: "0 0 10px 0", fontSize: "12px", color: "#64748b" }}>Shop: {vendor.shopName} ({vendorGps.lat.toFixed(3)}, {vendorGps.lng.toFixed(3)})</p>
               <a
                 href={`https://www.google.com/maps/dir/?api=1&destination=${vendorGps.lat},${vendorGps.lng}`}
                 target="_blank"
@@ -459,7 +463,6 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
               </a>
             </div>
 
-            {/* Dropoff Segment */}
             <div style={{ border: "1px solid #cbd5e1", padding: "15px", borderRadius: "8px", background: "#eff6ff" }}>
               <div style={{ fontSize: "12px", color: "#2563eb", fontWeight: "bold" }}>STEP 2: Delivery Location (Buyer)</div>
               <div style={{ fontSize: "20px", fontWeight: "bold", color: "#1d4ed8", margin: "6px 0" }}>{vendorToCustomerKm} km away</div>
@@ -475,7 +478,6 @@ export default function AdminAiAssistant({ activeVendor, vendorProducts, onAddPr
             </div>
           </div>
 
-          {/* Live Dynamic Shipping Rate Calculator */}
           <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", padding: "18px", borderRadius: "10px" }}>
             <h4 style={{ margin: "0 0 10px 0", color: "#166534" }}>🧮 Automated Shipping Cost Engine</h4>
 
