@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BravoMart Super App</title>
+
+    <!-- 1. Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 2. Configure BravoMart Brand Colors (Sky Blue & Cream) -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brandSky: {
+                light: '#7DD3FC',
+                DEFAULT: '#38BDF8',
+                dark: '#0284C7',
+              },
+              brandCream: {
+                light: '#FFFBEB',
+                DEFAULT: '#FEF3C7',
+                dark: '#FDE68A',
+              }
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

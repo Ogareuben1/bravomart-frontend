@@ -1,0 +1,8 @@
+@tailwindcss base;
+@tailwindcss components;
+@tailwindcss utilities;
+
+body {
+  background-color: #FFFBEB; /* Cream background */
+  color: #1F2937;
+}
