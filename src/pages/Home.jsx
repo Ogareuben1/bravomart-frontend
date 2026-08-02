@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Data imports
 import { CATEGORIES, PRODUCTS } from '../data/mockData';
 
 // Custom Application Components
+import Navbar from '../components/Navbar';
 import AiScamModal from '../components/AiScamModal';
 import AiSearchResults from '../components/AiSearchResults';
 import Footer from '../components/Footer';
@@ -17,10 +18,7 @@ import RightSidebar from '../components/RightSidebar';
 
 // Icons
 import { 
-  Search, ShoppingCart, User, ShieldCheck, 
-  Truck, Globe, Sparkles, DollarSign, MapPin, 
-  Award, ChevronDown, Headphones, HelpCircle, 
-  Info, ShieldAlert
+  ShieldCheck, Sparkles, DollarSign, MapPin, Award, X, ShoppingCart, CheckCircle2 
 } from 'lucide-react';
 
 const calculateGpsDistanceKm = (lat, lng) => {
@@ -42,12 +40,10 @@ export default function Home({
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [flashDropSlideIndex, setFlashDropSlideIndex] = useState(0);
 
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const helpDropdownRef = useRef(null);
-
   const [searchQuery, setSearchQuery] = useState("");
   const [aiFilter, setAiFilter] = useState("none"); 
   const [scamModalProduct, setScamModalProduct] = useState(null);
+  const [selectedProductModal, setSelectedProductModal] = useState(null);
 
   const [orderTrackingId, setOrderTrackingId] = useState("");
   const [isLiveTracking, setIsLiveTracking] = useState(false);
@@ -78,16 +74,6 @@ export default function Home({
   };
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (helpDropdownRef.current && !helpDropdownRef.current.contains(event.target)) {
-        setIsHelpOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
     if (!PRODUCTS || PRODUCTS.length === 0) return;
     const timer = setInterval(() => {
       setActiveSlideIndex((prev) => (prev + 1) % PRODUCTS.length);
@@ -108,13 +94,13 @@ export default function Home({
     const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
     const matchesSearch = !searchQuery.trim() || 
                           product.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          product.vendorName.toLowerCase().includes(searchQuery.toLowerCase());
+                          (product.vendorName && product.vendorName.toLowerCase().includes(searchQuery.toLowerCase()));
                           
     return matchesCategory && matchesSearch;
   });
 
   if (aiFilter === "cheapest") {
-    processedProducts.sort((a, b) => a.salePrice - b.salePrice);
+    processedProducts.sort((a, b) => (a.salePrice || a.price) - (b.salePrice || b.price));
   } else if (aiFilter === "nearest") {
     processedProducts.sort((a, b) => {
       const distA = a.coords ? calculateGpsDistanceKm(a.coords.lat, a.coords.lng) : (a.distanceKm || 0);
@@ -128,122 +114,40 @@ export default function Home({
   return (
     <div className="w-full flex flex-col min-h-screen bg-slate-50">
       
-      {/* HEADER */}
-      <header className="sticky top-0 z-40 bg-white border-b border-sky-100 shadow-sm">
-        <div className="bg-sky-900 text-white text-xs py-2 px-4 flex flex-wrap justify-between items-center gap-2">
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1"><Globe size={12} /> Global Shipping Available</span>
-            <span>📍 Deliver to: <b>Lagos, Nigeria</b></span>
-          </div>
-          
-          <div className="flex flex-wrap gap-2 md:gap-3 items-center">
-            <button onClick={() => navigate("/")} className="bg-white/10 hover:bg-white/20 text-white font-bold px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer">🏠 Home</button>
-            <button onClick={() => navigate("/AdminAiAssistant")} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer"><Sparkles size={12} /> AI Assistant</button>
-            <button onClick={() => navigate("/BravoAdmin")} className="bg-purple-700 hover:bg-purple-600 text-white font-bold px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 shadow-sm cursor-pointer"><ShieldAlert size={12} /> BravoAdmin</button>
+      {/* EXTRACTED NAVBAR COMPONENT */}
+      <Navbar
+        activeVendor={activeVendor}
+        setActiveVendor={setActiveVendor}
+        pendingVendorsCount={pendingVendorsCount}
+        cartCount={cartCount}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleCategorySelect={handleCategorySelect}
+      />
 
-            {!activeVendor ? (
-              <div className="flex items-center gap-1.5">
-                <button onClick={() => navigate("/vendor_register")} className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer">🏪 Sell on BravoMart</button>
-                <button onClick={() => navigate("/vendor_login")} className="bg-white/15 hover:bg-white/25 text-white text-[11px] font-semibold px-2 py-1 rounded-md transition-colors cursor-pointer">Vendor Log In</button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <button onClick={() => navigate("/vendor_register")} className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-2.5 py-1 rounded-md transition-colors cursor-pointer">🤖 Vendor Portal ({activeVendor.businessName || "Active"})</button>
-                <button onClick={() => { setActiveVendor(null); navigate("/"); }} className="bg-red-500/20 hover:bg-red-500 text-red-100 border border-red-400 font-bold px-2 py-0.5 rounded-md transition-colors cursor-pointer">Logout</button>
-              </div>
-            )}
-
-            <button onClick={() => navigate("/BravoSuperAdmin")} className="bg-white/10 hover:bg-white/20 text-sky-100 px-2 py-1 rounded-md text-[11px] transition-colors hidden sm:block cursor-pointer">🛡️ Bravo Verification ({pendingVendorsCount})</button>
-            <button onClick={() => navigate("/DispatcherPortal")} className="bg-amber-300 text-gray-900 font-bold px-2.5 py-1 rounded-full hover:bg-amber-400 cursor-pointer transition-colors flex items-center gap-1"><Truck size={12} /> Become Dispatcher</button>
-            <button onClick={() => navigate("/about")} className="hover:underline cursor-pointer flex items-center gap-1 bg-transparent border-0 text-white"><Info size={12} /> About Us</button>
-
-            <div className="relative" ref={helpDropdownRef}>
-              <button onClick={() => setIsHelpOpen(!isHelpOpen)} className="hover:underline flex items-center gap-1 focus:outline-none cursor-pointer">
-                <HelpCircle size={12} /> Help <ChevronDown size={12} className={`transition-transform duration-200 ${isHelpOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {isHelpOpen && (
-                <div className="absolute right-0 mt-1.5 w-44 bg-white text-gray-800 rounded-xl shadow-xl border border-sky-100 py-1.5 z-50">
-                  <button onClick={() => { setIsHelpOpen(false); navigate("/help"); }} className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs font-semibold hover:bg-sky-50 transition-colors cursor-pointer"><Headphones size={14} className="text-sky-600" /> Customer Support</button>
-                  <button onClick={() => { setIsHelpOpen(false); navigate("/help"); }} className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs font-semibold hover:bg-sky-50 transition-colors cursor-pointer"><HelpCircle size={14} className="text-amber-500" /> FAQ & Support</button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* SEARCH BAR & BRANDING */}
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <div className="flex flex-col cursor-pointer select-none" onClick={() => handleCategorySelect("all")}>
-            <div className="bg-sky-600 text-white font-black text-xl md:text-2xl px-3 py-0.5 rounded-xl shadow-md tracking-wider flex items-center gap-1">
-              BRAVO<span className="text-amber-300">MART</span>
-            </div>
-            <span className="text-[10px] italic font-semibold text-sky-900 tracking-tight mt-0.5 pl-1">shop smarter , saving cost</span>
-          </div>
-
-          <div className="flex-1 max-w-2xl relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search Garri, Yam, Excavators, Solar Inverters..."
-              className="w-full bg-slate-100 border-2 border-sky-200 focus:border-sky-600 rounded-full py-2 pl-10 pr-28 text-sm focus:outline-none transition-all"
-            />
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-            <button 
-              onClick={() => { if (!searchQuery.trim()) setSearchQuery("Solar Inverters"); }}
-              className="absolute right-1 top-1/2 -translate-y-1/2 bg-sky-600 hover:bg-sky-700 text-white p-2 rounded-full transition-colors flex items-center gap-1 text-xs font-bold px-3 shadow-sm cursor-pointer"
+      {/* CATEGORY BAR */}
+      <nav className="bg-sky-50 border-b border-sky-100 overflow-x-auto sticky top-[105px] z-30">
+        <div className="max-w-7xl mx-auto px-4 flex items-center space-x-6 py-2 text-xs font-semibold whitespace-nowrap">
+          {(CATEGORIES || []).map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => handleCategorySelect(cat.id)}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all cursor-pointer ${
+                selectedCategory === cat.id ? "bg-sky-600 text-white shadow-sm" : "text-gray-700 hover:bg-sky-200/50"
+              }`}
             >
-              <Sparkles size={14} /> AI Search
+              <span>{cat.icon}</span>
+              <span>{cat.name}</span>
             </button>
-          </div>
-
-          <div className="flex items-center gap-4 md:gap-6">
-            <div onClick={() => navigate("/account")} className="flex items-center gap-2 cursor-pointer hover:text-sky-700 transition-colors">
-              <User size={22} className="text-sky-800" />
-              <div className="text-xs hidden sm:block">
-                <span className="block text-gray-500">Welcome</span>
-                <span className="font-bold">Account / Login</span>
-              </div>
-            </div>
-
-            <div onClick={() => navigate("/checkout")} className="relative cursor-pointer group">
-              <div className="bg-sky-100 group-hover:bg-sky-200 p-2 rounded-full text-sky-900 transition-colors">
-                <ShoppingCart size={22} />
-              </div>
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-bounce">
-                  {cartCount}
-                </span>
-              )}
-            </div>
-          </div>
+          ))}
         </div>
+      </nav>
 
-        {/* CATEGORY NAV */}
-        <nav className="bg-sky-50 border-t border-sky-100 overflow-x-auto">
-          <div className="max-w-7xl mx-auto px-4 flex items-center space-x-6 py-2 text-xs font-semibold whitespace-nowrap">
-            {(CATEGORIES || []).map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => handleCategorySelect(cat.id)}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-all cursor-pointer ${
-                  selectedCategory === cat.id ? "bg-sky-600 text-white shadow-sm" : "text-gray-700 hover:bg-sky-200/50"
-                }`}
-              >
-                <span>{cat.icon}</span>
-                <span>{cat.name}</span>
-              </button>
-            ))}
-          </div>
-        </nav>
-      </header>
-
-      {/* MAIN LAYOUT */}
-      <div className="max-w-7xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* MAIN THREE-COLUMN LAYOUT WITH FIXED SIDEBARS */}
+      <div className="max-w-7xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* LEFT COLUMN */}
-        <aside className="hidden lg:block lg:col-span-3 space-y-6">
+        {/* FIXED LEFT SIDEBAR */}
+        <aside className="hidden lg:block lg:col-span-3 space-y-6 sticky top-36 max-h-[calc(100vh-10rem)] overflow-y-auto pr-1">
           <MarketSectors categories={CATEGORIES || []} onSelectCategory={handleCategorySelect} />
 
           <OrderTracker 
@@ -262,7 +166,7 @@ export default function Home({
           </div>
         </aside>
 
-        {/* CENTER COLUMN */}
+        {/* SCROLLABLE CENTER MARKETPLACE AREA */}
         <main className="lg:col-span-6 space-y-6">
           {searchQuery.trim() !== "" && (
             <AiSearchResults 
@@ -321,37 +225,133 @@ export default function Home({
             </div>
           </section>
 
-          {/* PRODUCT GRID */}
+          {/* UPGRADED 3-COLUMN PRODUCT GRID */}
           <section>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-bold text-lg text-gray-900 flex items-center gap-2">🛒 Global & Local Marketplace</h2>
               <span className="text-xs text-gray-500">Showing {processedProducts.length} items</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {processedProducts.map((product) => (
-                <ProductCard 
+                <div 
                   key={product.id} 
-                  product={product} 
-                  calculateGpsDistanceKm={calculateGpsDistanceKm} 
-                  onAddToCart={handleAddToCart}
-                  onScanScam={(p) => setScamModalProduct(p)}
-                />
+                  onClick={() => setSelectedProductModal(product)} 
+                  className="cursor-pointer transition-transform hover:-translate-y-1"
+                >
+                  <ProductCard 
+                    product={product} 
+                    calculateGpsDistanceKm={calculateGpsDistanceKm} 
+                    onAddToCart={(e) => {
+                      if (e && e.stopPropagation) e.stopPropagation();
+                      handleAddToCart(product);
+                    }}
+                    onScanScam={(p, e) => {
+                      if (e && e.stopPropagation) e.stopPropagation();
+                      setScamModalProduct(p);
+                    }}
+                  />
+                </div>
               ))}
             </div>
           </section>
         </main>
 
-        {/* RIGHT COLUMN */}
-        <RightSidebar 
-          products={PRODUCTS || []} 
-          activeSlideIndex={activeSlideIndex} 
-          setActiveSlideIndex={setActiveSlideIndex}
-          onAddToCart={handleAddToCart}
-        />
+        {/* FIXED RIGHT SIDEBAR */}
+        <div className="hidden lg:block lg:col-span-3 sticky top-36 max-h-[calc(100vh-10rem)] overflow-y-auto pl-1">
+          <RightSidebar 
+            products={PRODUCTS || []} 
+            activeSlideIndex={activeSlideIndex} 
+            setActiveSlideIndex={setActiveSlideIndex}
+            onAddToCart={handleAddToCart}
+          />
+        </div>
 
       </div>
 
+      {/* FULL PRODUCT DETAILS MODAL */}
+      {selectedProductModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl relative border border-slate-200 animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
+            
+            <button 
+              onClick={() => setSelectedProductModal(null)}
+              className="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-full transition-colors"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex flex-col sm:flex-row gap-5">
+              <img 
+                src={selectedProductModal.image || selectedProductModal.imgUrl || 'https://via.placeholder.com/200'} 
+                alt={selectedProductModal.title}
+                className="w-full sm:w-48 h-48 object-cover rounded-xl border border-slate-100"
+              />
+
+              <div className="space-y-3 flex-1">
+                <span className="bg-sky-100 text-sky-800 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">
+                  {selectedProductModal.category || "General"}
+                </span>
+
+                <h3 className="text-lg font-bold text-slate-900 leading-snug">
+                  {selectedProductModal.title}
+                </h3>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl font-black text-emerald-600">
+                    ₦{(selectedProductModal.salePrice || selectedProductModal.price || 0).toLocaleString()}
+                  </span>
+                  {selectedProductModal.originalPrice && (
+                    <span className="text-xs text-slate-400 line-through">
+                      ₦{selectedProductModal.originalPrice.toLocaleString()}
+                    </span>
+                  )}
+                </div>
+
+                <div className="text-xs text-slate-600 space-y-1">
+                  <p><strong className="text-slate-800">Vendor:</strong> {selectedProductModal.vendorName || "Verified Merchant"}</p>
+                  <p className="flex items-center gap-1 text-emerald-700 font-semibold">
+                    <CheckCircle2 size={14} /> Escrow Protection Available
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-600 space-y-2">
+              <h4 className="font-bold text-slate-900">Product Description</h4>
+              <p className="leading-relaxed">
+                {selectedProductModal.description || "High-quality item directly sourced from verified sellers on BravoMart. Fast local dispatch with real-time GPS rider tracking enabled."}
+              </p>
+            </div>
+
+            <div className="mt-6 flex gap-3">
+              <button 
+                onClick={() => {
+                  handleAddToCart(selectedProductModal);
+                  setSelectedProductModal(null);
+                }}
+                className="flex-1 bg-sky-600 hover:bg-sky-700 text-white py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
+              >
+                <ShoppingCart size={16} /> Add to Cart
+              </button>
+              
+              <button 
+                onClick={() => {
+                  handleAddToCart(selectedProductModal);
+                  setSelectedProductModal(null);
+                  navigate('/checkout');
+                }}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-xs transition-all cursor-pointer shadow-md"
+              >
+                Buy Now
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* SCAM INSPECTOR MODAL */}
       {scamModalProduct && (
         <AiScamModal product={scamModalProduct} onClose={() => setScamModalProduct(null)} />
       )}
