@@ -40,12 +40,10 @@ export default function App() {
   };
 
   return (
-    <Router>
+    <Router basename="/bravomart-frontend">
       <div className="min-h-screen bg-slate-50 text-gray-900 font-sans">
         
-        {/* ========================================================= */}
-        {/* APPLICATION ROUTES                                        */}
-        {/* ========================================================= */}
+        {/* APPLICATION ROUTES */}
         <Routes>
           {/* Main Authentic Homepage */}
           <Route path="/" element={<Home />} />
