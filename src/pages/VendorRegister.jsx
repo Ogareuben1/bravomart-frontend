@@ -27,7 +27,15 @@ export default function VendorRegister({ onRegisterSuccess, onGoToLogin, onGoToH
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.fullName || !formData.homeAddress || !formData.shopName || !formData.shopAddress || !formData.phone || !formData.username || !formData.password) {
+    if (
+      !formData.fullName ||
+      !formData.homeAddress ||
+      !formData.shopName ||
+      !formData.shopAddress ||
+      !formData.phone ||
+      !formData.username ||
+      !formData.password
+    ) {
       setError("Please fill in all mandatory fields (including ID card document).");
       return;
     }
@@ -50,66 +58,115 @@ export default function VendorRegister({ onRegisterSuccess, onGoToLogin, onGoToH
   };
 
   return (
-    <div style={{ maxWidth: "650px", margin: "30px auto", padding: "24px", background: "#fff", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
-      <button onClick={onGoToHome} style={{ border: "none", background: "none", color: "#64748b", cursor: "pointer", marginBottom: "15px", fontWeight: "bold" }}>
+    <div
+      style={{
+        maxWidth: "700px",
+        margin: "40px auto",
+        padding: "36px",
+        background: "#ffffff",
+        borderRadius: "16px",
+        border: "1px solid #e2e8f0",
+        boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)"
+      }}
+    >
+      {/* Route Back to Marketplace */}
+      <a
+        href="http://localhost:5173/marketplace"
+        onClick={(e) => {
+          if (onGoToHome) {
+            e.preventDefault();
+            onGoToHome();
+          }
+        }}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          color: "#475569",
+          textDecoration: "none",
+          marginBottom: "20px",
+          fontWeight: "600",
+          fontSize: "15px",
+          transition: "color 0.2s ease"
+        }}
+      >
         ← Back to BravoMart
-      </button>
+      </a>
 
-      <h2 style={{ margin: "0 0 10px 0", color: "#0f172a" }}>🏪 Register Your Shop on BravoMart</h2>
-      <p style={{ color: "#64748b", fontSize: "14px", marginBottom: "20px" }}>
+      <h2 style={{ margin: "0 0 10px 0", color: "#0f172a", fontSize: "26px", fontWeight: "700" }}>
+        🏪 Register Your Shop on BravoMart
+      </h2>
+      <p style={{ color: "#64748b", fontSize: "15px", marginBottom: "28px", lineHeight: "1.5" }}>
         Fill out your business details below for physical verification by the BravoMart admin team.
       </p>
 
       {error && (
-        <div style={{ background: "#fef2f2", color: "#dc2626", padding: "10px 14px", borderRadius: "6px", fontSize: "13px", marginBottom: "15px" }}>
+        <div
+          style={{
+            background: "#fef2f2",
+            color: "#dc2626",
+            padding: "12px 16px",
+            borderRadius: "8px",
+            fontSize: "14px",
+            marginBottom: "20px",
+            border: "1px solid #fecaca"
+          }}
+        >
           ⚠️ {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: "15px" }}>
+      <form onSubmit={handleSubmit} style={{ display: "grid", gap: "18px" }}>
         <div>
-          <label style={{ fontSize: "13px", fontWeight: "bold", display: "block", marginBottom: "4px" }}>Full Name (As shown on National ID Card) *</label>
+          <label style={{ fontSize: "14px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+            Full Name (As shown on National ID Card) *
+          </label>
           <input
             type="text"
             value={formData.fullName}
             onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
             placeholder="e.g. Chukwuma Emmanuel"
-            style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+            style={{ width: "100%", padding: "12px 14px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "15px", outline: "none" }}
             required
           />
         </div>
 
         <div>
-          <label style={{ fontSize: "13px", fontWeight: "bold", display: "block", marginBottom: "4px" }}>Residential Home Address (Private — BravoMart Admin Use Only) *</label>
+          <label style={{ fontSize: "14px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+            Residential Home Address (Private — BravoMart Admin Use Only) *
+          </label>
           <textarea
             rows="2"
             value={formData.homeAddress}
             onChange={(e) => setFormData({ ...formData, homeAddress: e.target.value })}
             placeholder="House number, street, city, state"
-            style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+            style={{ width: "100%", padding: "12px 14px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "15px", outline: "none" }}
             required
           />
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px" }}>
           <div>
-            <label style={{ fontSize: "13px", fontWeight: "bold", display: "block", marginBottom: "4px" }}>Shop Name *</label>
+            <label style={{ fontSize: "14px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+              Shop Name *
+            </label>
             <input
               type="text"
               value={formData.shopName}
               onChange={(e) => setFormData({ ...formData, shopName: e.target.value })}
               placeholder="e.g. Bravo Electronics & Logistics"
-              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+              style={{ width: "100%", padding: "12px 14px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "15px", outline: "none" }}
               required
             />
           </div>
 
           <div>
-            <label style={{ fontSize: "13px", fontWeight: "bold", display: "block", marginBottom: "4px" }}>Business Type *</label>
+            <label style={{ fontSize: "14px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+              Business Type *
+            </label>
             <select
               value={formData.businessType}
               onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
-              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+              style={{ width: "100%", padding: "12px 14px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "15px", outline: "none", background: "#fff" }}
             >
               <option value="groceries">Groceries & Food</option>
               <option value="electronics">Electronics & Tech</option>
@@ -120,86 +177,130 @@ export default function VendorRegister({ onRegisterSuccess, onGoToLogin, onGoToH
         </div>
 
         <div>
-          <label style={{ fontSize: "13px", fontWeight: "bold", display: "block", marginBottom: "4px" }}>Shop Physical Address (For Customers, Dispatch Riders & GPS Navigation) *</label>
+          <label style={{ fontSize: "14px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+            Shop Physical Address (For Customers, Dispatch Riders & GPS Navigation) *
+          </label>
           <textarea
             rows="2"
             value={formData.shopAddress}
             onChange={(e) => setFormData({ ...formData, shopAddress: e.target.value })}
             placeholder="Shop 14, Alaba International Market, Ojo, Lagos"
-            style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+            style={{ width: "100%", padding: "12px 14px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "15px", outline: "none" }}
             required
           />
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px" }}>
           <div>
-            <label style={{ fontSize: "13px", fontWeight: "bold", display: "block", marginBottom: "4px" }}>Contact Phone Number (Compulsory) *</label>
+            <label style={{ fontSize: "14px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+              Contact Phone Number (Compulsory) *
+            </label>
             <input
               type="tel"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               placeholder="08012345678"
-              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+              style={{ width: "100%", padding: "12px 14px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "15px", outline: "none" }}
               required
             />
           </div>
 
           <div>
-            <label style={{ fontSize: "13px", fontWeight: "bold", display: "block", marginBottom: "4px" }}>Email Address (Optional)</label>
+            <label style={{ fontSize: "14px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+              Email Address (Optional)
+            </label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               placeholder="vendor@bravomart.com"
-              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+              style={{ width: "100%", padding: "12px 14px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "15px", outline: "none" }}
             />
           </div>
         </div>
 
         <div>
-          <label style={{ fontSize: "13px", fontWeight: "bold", display: "block", marginBottom: "4px" }}>Upload Means of Identification (NIN / Voter's Card / Drivers License / Passport) *</label>
-          <input type="file" accept="image/*,.pdf" onChange={handleFileChange} style={{ marginBottom: "8px" }} />
+          <label style={{ fontSize: "14px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+            Upload Means of Identification (NIN / Voter's Card / Drivers License / Passport) *
+          </label>
+          <input type="file" accept="image/*,.pdf" onChange={handleFileChange} style={{ marginBottom: "10px", fontSize: "14px" }} />
           {idPreview && (
-            <img src={idPreview} alt="ID preview" style={{ width: "100%", height: "120px", objectFit: "cover", borderRadius: "6px", border: "1px solid #cbd5e1" }} />
+            <img src={idPreview} alt="ID preview" style={{ width: "100%", height: "150px", objectFit: "cover", borderRadius: "8px", border: "1px solid #cbd5e1" }} />
           )}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px" }}>
           <div>
-            <label style={{ fontSize: "13px", fontWeight: "bold", display: "block", marginBottom: "4px" }}>Create Login Username *</label>
+            <label style={{ fontSize: "14px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+              Create Login Username *
+            </label>
             <input
               type="text"
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
               placeholder="bravovendor1"
-              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+              style={{ width: "100%", padding: "12px 14px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "15px", outline: "none" }}
               required
             />
           </div>
 
           <div>
-            <label style={{ fontSize: "13px", fontWeight: "bold", display: "block", marginBottom: "4px" }}>Create Password *</label>
+            <label style={{ fontSize: "14px", fontWeight: "600", color: "#334155", display: "block", marginBottom: "6px" }}>
+              Create Password *
+            </label>
             <input
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               placeholder="••••••••"
-              style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e1" }}
+              style={{ width: "100%", padding: "12px 14px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "15px", outline: "none" }}
               required
             />
           </div>
         </div>
 
-        <button type="submit" style={{ padding: "12px", background: "#2563eb", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer", marginTop: "10px" }}>
+        <button
+          type="submit"
+          style={{
+            padding: "14px",
+            background: "#2563eb",
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            fontWeight: "600",
+            fontSize: "16px",
+            cursor: "pointer",
+            marginTop: "12px",
+            boxShadow: "0 4px 6px -1px rgba(37, 99, 235, 0.2)",
+            transition: "background 0.2s ease"
+          }}
+        >
           Submit Shop Application
         </button>
       </form>
 
-      <div style={{ marginTop: "20px", textAlign: "center", fontSize: "14px" }}>
+      <hr style={{ margin: "28px 0 20px 0", border: "none", borderTop: "1px solid #f1f5f9" }} />
+
+      {/* Route to Vendor Login */}
+      <div style={{ textAlign: "center", fontSize: "15px", color: "#475569" }}>
         Already have a shop?{" "}
-        <button onClick={onGoToLogin} style={{ border: "none", background: "none", color: "#2563eb", fontWeight: "bold", cursor: "pointer", textDecoration: "underline" }}>
+        <a
+          href="http://localhost:5173/vendor_login"
+          onClick={(e) => {
+            if (onGoToLogin) {
+              e.preventDefault();
+              onGoToLogin();
+            }
+          }}
+          style={{
+            color: "#2563eb",
+            fontWeight: "600",
+            textDecoration: "underline",
+            marginLeft: "4px"
+          }}
+        >
           Log In
-        </button>
+        </a>
       </div>
     </div>
   );

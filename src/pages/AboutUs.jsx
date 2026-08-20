@@ -1,13 +1,20 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Truck, Users, Award, Heart, ArrowLeft, CheckCircle2 } from 'lucide-react';
 
-export default function AboutUs({ onNavigateHome }) {
+export default function AboutUs() {
+  const navigate = useNavigate();
+
+  const handleNavigateToMarketplace = () => {
+    navigate('/marketplace');
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 py-6 sm:py-10 px-4 sm:px-6 font-sans text-gray-800">
       <div className="max-w-5xl mx-auto space-y-10">
         
-        {/* Navigation Breadcrumb */}
-        <div className="flex justify-between items-center border-b pb-4 border-slate-200">
+        {/* Navigation Breadcrumb - Mobile Responsive Header */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 border-b pb-4 border-slate-200">
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-gray-900">About BravoMart</h1>
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
@@ -15,8 +22,8 @@ export default function AboutUs({ onNavigateHome }) {
             </p>
           </div>
           <button 
-            onClick={onNavigateHome}
-            className="text-xs bg-slate-900 text-white font-bold px-4 py-2.5 rounded-xl hover:bg-slate-800 transition flex items-center gap-2 cursor-pointer"
+            onClick={handleNavigateToMarketplace}
+            className="text-xs bg-slate-900 text-white font-bold px-4 py-3 rounded-xl hover:bg-slate-800 transition flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
           >
             <ArrowLeft size={14} /> Back to Store
           </button>
@@ -98,7 +105,7 @@ export default function AboutUs({ onNavigateHome }) {
             Browse verified listings from trusted vendors across Nigeria and beyond.
           </p>
           <button 
-            onClick={onNavigateHome}
+            onClick={handleNavigateToMarketplace}
             className="bg-sky-500 hover:bg-sky-400 text-white font-extrabold text-xs px-6 py-3 rounded-xl transition cursor-pointer"
           >
             Explore Marketplace Now

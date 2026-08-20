@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 
 // Pages
 import Home from './pages/Home';
+import Marketplace from './pages/Marketplace';
 import AboutUs from './pages/AboutUs';
 import AccountPage from './pages/AccountPage';
 import AdminAiAssistant from './pages/AdminAiAssistant';
@@ -41,12 +42,19 @@ export default function App() {
   return (
     <Router>
       <div className="min-h-screen bg-slate-50 text-gray-900 font-sans">
+        
+        {/* ========================================================= */}
+        {/* APPLICATION ROUTES                                        */}
+        {/* ========================================================= */}
         <Routes>
-          {/* Main Home Route */}
+          {/* Main Authentic Homepage */}
+          <Route path="/" element={<Home />} />
+
+          {/* E-Commerce Marketplace Route */}
           <Route 
-            path="/" 
+            path="/marketplace" 
             element={
-              <Home 
+              <Marketplace 
                 activeVendor={activeVendor}
                 setActiveVendor={setActiveVendor}
                 pendingVendorsCount={pendingVendorsCount}
@@ -56,7 +64,7 @@ export default function App() {
             } 
           />
 
-          {/* Individual Page Routes with real URL paths */}
+          {/* Individual Page Routes */}
           <Route path="/account" element={<AccountPage />} />
           <Route path="/login" element={<AccountPage />} />
           
@@ -71,7 +79,6 @@ export default function App() {
           {/* Admin & Portal Routes */}
           <Route path="/BravoAdmin" element={<BravoAdmin />} />
           
-          {/* Bravo Super Admin Route with Proper Props */}
           <Route 
             path="/BravoSuperAdmin" 
             element={
@@ -83,7 +90,6 @@ export default function App() {
             } 
           />
           
-          {/* Admin AI Assistant Route with Proper Props */}
           <Route 
             path="/AdminAiAssistant" 
             element={
