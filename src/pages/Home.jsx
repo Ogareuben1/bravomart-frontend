@@ -29,9 +29,18 @@ export default function Home() {
       {/* HERO SECTION */}
       <section className="bg-gradient-to-b from-sky-900 via-slate-900 to-emerald-950/80 py-8 px-4 text-center">
         <div className="max-w-3xl mx-auto space-y-4">
-          <h1 className="text-2xl md:text-4xl font-black text-white tracking-tight leading-snug">
-            Local Merchants & Fast Dispatchers to Your Doorstep
-          </h1>
+          
+          {/* Brand Logo & Title Header */}
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <img 
+              src="/favicon.svg" 
+              alt="BravoMart Logo" 
+              className="h-10 w-10 md:h-12 md:w-12 object-contain filter drop-shadow-md"
+            />
+            <h1 className="text-2xl md:text-4xl font-black text-white tracking-tight leading-snug">
+              Local Merchants & Fast Dispatchers to Your Doorstep
+            </h1>
+          </div>
           
           {/* QUICK ACTION CARDS */}
           <div className="pt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 max-w-4xl mx-auto">

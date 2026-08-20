@@ -82,17 +82,24 @@ export default function Help({ onNavigateHome }) {
     <div className="min-h-screen bg-slate-50 py-6 sm:py-10 px-4 sm:px-6 font-sans text-gray-800">
       <div className="max-w-5xl mx-auto space-y-8">
         
-        {/* Header */}
+        {/* Header with Logo */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-4 border-slate-200">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-gray-900 flex items-center gap-2">
-              <HelpCircle className="text-sky-600" /> Help & Support Hub
-            </h1>
-            <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              {activeTab === 'support' 
-                ? "Reach out directly to our 24/7 Customer Support Team & Resolution Center." 
-                : "Browse frequently asked questions and quick guides."}
-            </p>
+          <div className="flex items-center gap-3">
+            <img 
+              src="/favicon.svg" 
+              alt="BravoMart Logo" 
+              className="h-9 w-9 object-contain"
+            />
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-black text-gray-900 flex items-center gap-2">
+                BravoMart Help & Support
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
+                {activeTab === 'support' 
+                  ? "Reach out directly to our 24/7 Customer Support Team & Resolution Center." 
+                  : "Browse frequently asked questions and quick guides."}
+              </p>
+            </div>
           </div>
           
           <button 
