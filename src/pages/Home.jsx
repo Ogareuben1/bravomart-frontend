@@ -1,12 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Store, ShoppingBag, Truck, Info, HelpCircle, ArrowRight, Home as HomeIcon 
+  Store, ShoppingBag, Truck, Info, HelpCircle, Home as HomeIcon 
 } from 'lucide-react';
 import Footer from '../components/Footer';
 
 export default function Home() {
   const navigate = useNavigate();
+
+  // Dynamic favicon configuration
+  useEffect(() => {
+    let link = document.querySelector("link[rel*='icon']");
+
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'shortcut icon';
+      document.getElementsByTagName('head')[0].appendChild(link);
+    }
+    
+    // Points directly to public/favicon.svg
+    link.href = '/favicon.svg'; 
+    link.type = 'image/svg+xml';
+  }, []);
 
   // Progress tracking for forward journeys (0% = Shop, 100% = Home)
   const [motoProgress, setMotoProgress] = useState(0);
@@ -135,7 +150,7 @@ export default function Home() {
                   className="absolute text-3xl md:text-4xl filter drop-shadow-md select-none transition-opacity duration-300"
                   style={{ 
                     left: `${Math.min(motoProgress, 88)}%`,
-                    transform: 'scaleX(-1)', // Flipped to run forward toward residence
+                    transform: 'scaleX(-1)',
                     opacity: motoProgress >= 88 ? 0 : 1
                   }}
                 >
@@ -163,7 +178,7 @@ export default function Home() {
                   className="absolute text-3xl md:text-4xl filter drop-shadow-md select-none transition-opacity duration-300"
                   style={{ 
                     left: `${Math.min(carProgress, 88)}%`,
-                    transform: 'scaleX(-1)', // Flip vehicle to face right/forward
+                    transform: 'scaleX(-1)',
                     opacity: carProgress >= 88 ? 0 : 1
                   }}
                 >
@@ -191,7 +206,7 @@ export default function Home() {
                   className="absolute text-3xl md:text-4xl filter drop-shadow-md select-none transition-opacity duration-300"
                   style={{ 
                     left: `${Math.min(truckProgress, 92)}%`,
-                    transform: 'scaleX(-1)', // Flip vehicle to face right/forward
+                    transform: 'scaleX(-1)',
                     opacity: truckProgress >= 92 ? 0 : 1
                   }}
                 >
