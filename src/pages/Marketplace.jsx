@@ -16,13 +16,30 @@ import { MarketSectors } from '../components/MarketSectors';
 import { OrderTracker } from '../components/OrderTracker';
 import RightSidebar from '../components/RightSidebar';
 
-// Icons
+// Direct Brand Image Import
+import logoImg from '/public/bravomart-logo.png';
+
+// Icons (Lucide React)
 import { 
   ShieldCheck, Sparkles, DollarSign, MapPin, Award, X, ShoppingCart, 
-  CheckCircle2, Filter, ChevronDown, Menu, Navigation, Mic, MicOff, Sun, Moon 
+  CheckCircle2, Filter, ChevronDown, Menu, Navigation, Mic, MicOff, Sun, Moon,
+  Tag, Smartphone, Shirt, Home, Sparkle, Dumbbell, BookOpen, Layers
 } from 'lucide-react';
 
 const FALLBACK_IMAGE = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f1f5f9"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%2394a3b8" font-family="sans-serif" font-size="14">Image Unavailable</text></svg>';
+
+// Map category icons to Lucide components
+const getCategoryIcon = (id) => {
+  switch (id) {
+    case 'electronics': return <Smartphone size={18} />;
+    case 'fashion': return <Shirt size={18} />;
+    case 'home': return <Home size={18} />;
+    case 'beauty': return <Sparkle size={18} />;
+    case 'sports': return <Dumbbell size={18} />;
+    case 'books': return <BookOpen size={18} />;
+    default: return <Layers size={18} />;
+  }
+};
 
 const calculateGpsDistanceKm = (lat, lng) => {
   if (!lat || !lng) return 2.5;
@@ -57,7 +74,6 @@ export default function Marketplace({
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
 
-  // NEW FEATURE STATES: Theme & Voice Listening
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isListening, setIsListening] = useState(false);
 
@@ -70,7 +86,6 @@ export default function Marketplace({
     if (cartItems) setCartCount(cartItems.length);
   }, [cartItems]);
 
-  // VOICE SEARCH IMPLEMENTATION
   const handleVoiceSearch = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     
@@ -84,23 +99,14 @@ export default function Marketplace({
     recognition.interimResults = false;
     recognition.lang = 'en-US';
 
-    recognition.onstart = () => {
-      setIsListening(true);
-    };
-
+    recognition.onstart = () => setIsListening(true);
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       handleSearchChange(transcript);
       setIsListening(false);
     };
-
-    recognition.onerror = () => {
-      setIsListening(false);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
 
     recognition.start();
   };
@@ -191,14 +197,22 @@ export default function Marketplace({
       isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
     }`}>
       
-      {/* TOOLBAR FOR GLOBAL CONTROLS (LIGHT/DARK TOGGLE & VOICE ASSIST STATUS) */}
+      {/* GLOBAL TOP CONTROLS & LOGO TAGLINE HEADER */}
       <div className={`px-4 py-2 border-b text-xs flex justify-between items-center ${
         isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-sky-50 border-sky-100 text-sky-950'
       }`}>
-        <span className="font-semibold flex items-center gap-1.5">
-          <Sparkles size={14} className="text-amber-500" />
-          Smart Marketplace Controls
-        </span>
+        {/* BRAND LOGO WITH SLOGAN */}
+        <div className="flex items-center gap-2">
+          <img 
+            src={logoImg} 
+            alt="BRAVOMART Logo" 
+            className="h-7 w-auto object-contain"
+            onError={(e) => { e.currentTarget.src = '/bravomart-logo.png'; }}
+          />
+          <span className="font-black text-sky-900 dark:text-sky-400 tracking-wide">
+            BRAVOMART <span className="font-semibold text-slate-500 dark:text-slate-400">(Shop Smarter, Saving Cost)</span>
+          </span>
+        </div>
 
         <button
           type="button"
@@ -225,8 +239,8 @@ export default function Marketplace({
         handleCategorySelect={handleCategorySelect}
       />
 
-      {/* VOICE SEARCH ACTION BAR / INPUT OVERRIDE DISPLAY */}
-      <div className={`max-w-7xl mx-auto w-full px-4 pt-3 flex justify-end items-center gap-2`}>
+      {/* VOICE SEARCH ACTION BAR */}
+      <div className="max-w-7xl mx-auto w-full px-4 pt-3 flex justify-end items-center gap-2">
         <button
           type="button"
           onClick={handleVoiceSearch}
@@ -243,7 +257,7 @@ export default function Marketplace({
         </button>
       </div>
 
-      {/* CATEGORY BAR */}
+      {/* CATEGORY BAR WITH LUCIDE ICONS */}
       <nav aria-label="Product categories" className="bg-sky-900 border-b border-sky-800 sticky top-0 z-30 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
           
@@ -259,34 +273,20 @@ export default function Marketplace({
 
             <button
               type="button"
-              id="toggle-category-menu-btn"
-              name="toggleCategoryMenu"
               onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
               className="text-white bg-sky-800 hover:bg-sky-700 p-2 rounded-lg flex items-center gap-1.5 text-sm font-bold transition-all border border-sky-700 cursor-pointer"
             >
-              {isCategoryMenuOpen ? (
-                <>
-                  <X size={20} /> Close Categories
-                </>
-              ) : (
-                <>
-                  <Menu size={20} /> Browse All Categories
-                </>
-              )}
+              {isCategoryMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
 
-          <div 
-            className={`${
-              isCategoryMenuOpen ? 'flex' : 'hidden'
-            } lg:flex flex-wrap items-center justify-center lg:justify-start gap-2.5 pt-3 lg:pt-0 border-t lg:border-t-0 border-sky-800/60 transition-all duration-300`}
-          >
+          <div className={`${
+            isCategoryMenuOpen ? 'flex' : 'hidden'
+          } lg:flex flex-wrap items-center justify-center lg:justify-start gap-2.5 pt-3 lg:pt-0 border-t lg:border-t-0 border-sky-800/60 transition-all duration-300`}>
             {(CATEGORIES || []).map((cat) => (
               <button
                 key={cat.id}
                 type="button"
-                id={`category-btn-${cat.id}`}
-                name={`categoryBtn_${cat.id}`}
                 onClick={() => {
                   handleCategorySelect(cat.id);
                   setIsCategoryMenuOpen(false);
@@ -298,15 +298,9 @@ export default function Marketplace({
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <span className="text-xl">{cat.icon}</span>
+                  {getCategoryIcon(cat.id)}
                   <span>{cat.name}</span>
                 </span>
-                
-                {selectedCategory === cat.id && (
-                  <span className="lg:hidden text-xs bg-white text-sky-900 font-extrabold px-2 py-0.5 rounded-full">
-                    Active
-                  </span>
-                )}
               </button>
             ))}
           </div>
@@ -318,8 +312,6 @@ export default function Marketplace({
       <div className="lg:hidden px-4 pt-4">
         <button
           type="button"
-          id="toggle-mobile-filters"
-          name="toggleMobileFilters"
           onClick={() => setShowMobileFilters(!showMobileFilters)}
           className={`w-full py-3 px-4 rounded-xl flex items-center justify-between border shadow-sm cursor-pointer text-base font-bold ${
             isDarkMode ? 'bg-slate-900 border-slate-800 text-sky-400' : 'bg-white border-sky-200 text-sky-900'
@@ -409,7 +401,7 @@ export default function Marketplace({
                   href="https://www.google.com/maps" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-lg px-6 py-3 rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                  className="inline-flex items-center justify-center gap-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-lg px-6 py-3 rounded-xl shadow-lg transition-all cursor-pointer"
                 >
                   <Navigation size={22} className="fill-slate-950" /> Navigate Your Way
                 </a>
@@ -424,8 +416,8 @@ export default function Marketplace({
                 onError={(e) => { e.currentTarget.src = FALLBACK_IMAGE; }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3">
-                <span className="text-xs font-bold text-sky-200 bg-sky-950/80 backdrop-blur-md px-2.5 py-1 rounded-md border border-sky-600/50">
-                  📍 Active Track Route
+                <span className="text-xs font-bold text-sky-200 bg-sky-950/80 backdrop-blur-md px-2.5 py-1 rounded-md border border-sky-600/50 flex items-center gap-1">
+                  <MapPin size={14} className="text-sky-400" /> Active Track Route
                 </span>
               </div>
             </div>
@@ -449,8 +441,6 @@ export default function Marketplace({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-base">
               <button 
                 type="button"
-                id="filter-cheapest-btn"
-                name="filterCheapestBtn"
                 onClick={() => setAiFilter(aiFilter === "cheapest" ? "none" : "cheapest")}
                 className={`py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all border cursor-pointer ${
                   aiFilter === "cheapest" ? "bg-emerald-600 text-white border-emerald-600 shadow-sm" : "bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100"
@@ -461,8 +451,6 @@ export default function Marketplace({
 
               <button 
                 type="button"
-                id="filter-nearest-btn"
-                name="filterNearestBtn"
                 onClick={() => setAiFilter(aiFilter === "nearest" ? "none" : "nearest")}
                 className={`py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all border cursor-pointer ${
                   aiFilter === "nearest" ? "bg-sky-700 text-white border-sky-700 shadow-sm" : "bg-sky-50 text-sky-800 border-sky-200 hover:bg-sky-100"
@@ -473,8 +461,6 @@ export default function Marketplace({
 
               <button 
                 type="button"
-                id="filter-quality-btn"
-                name="filterQualityBtn"
                 onClick={() => setAiFilter(aiFilter === "quality" ? "none" : "quality")}
                 className={`py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all border cursor-pointer ${
                   aiFilter === "quality" ? "bg-amber-500 text-white border-amber-500 shadow-sm" : "bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100"
@@ -491,7 +477,7 @@ export default function Marketplace({
               <h2 className={`font-bold text-2xl sm:text-3xl flex items-center gap-2 ${
                 isDarkMode ? 'text-slate-100' : 'text-gray-900'
               }`}>
-                🛒 Marketplace Products
+                <ShoppingCart size={28} className="text-sky-600" /> Marketplace Products
               </h2>
               <span className={`text-sm sm:text-base font-bold ${
                 isDarkMode ? 'text-slate-400' : 'text-gray-600'
@@ -546,8 +532,6 @@ export default function Marketplace({
             
             <button 
               type="button"
-              id="close-product-modal-btn"
-              name="closeProductModalBtn"
               onClick={() => setSelectedProductModal(null)}
               className={`absolute top-4 right-4 p-2.5 rounded-full transition-colors cursor-pointer ${
                 isDarkMode ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
@@ -607,8 +591,6 @@ export default function Marketplace({
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
               <button 
                 type="button"
-                id="modal-add-to-cart-btn"
-                name="modalAddToCartBtn"
                 onClick={() => {
                   handleAddToCart(selectedProductModal);
                   setSelectedProductModal(null);
@@ -620,8 +602,6 @@ export default function Marketplace({
               
               <button 
                 type="button"
-                id="modal-buy-now-btn"
-                name="modalBuyNowBtn"
                 onClick={() => {
                   handleAddToCart(selectedProductModal);
                   setSelectedProductModal(null);

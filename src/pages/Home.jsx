@@ -5,25 +5,27 @@ import {
 } from 'lucide-react';
 import Footer from '../components/Footer';
 
+// IMPORT LOGO DIRECTLY TO ENSURE BUNDLER RESOLUTION
+import logoImg from '/public/bravomart-logo.png';
+
 export default function Home() {
   const navigate = useNavigate();
 
-  // Dynamic favicon configuration
+  // DYNAMIC FAVICON MANAGEMENT
   useEffect(() => {
     let link = document.querySelector("link[rel*='icon']");
 
     if (!link) {
       link = document.createElement('link');
-      link.rel = 'shortcut icon';
+      link.rel = 'icon';
       document.getElementsByTagName('head')[0].appendChild(link);
     }
     
-    // Points directly to public/favicon.svg
-    link.href = '/favicon.svg'; 
-    link.type = 'image/svg+xml';
+    link.href = logoImg;
+    link.type = 'image/png';
   }, []);
 
-  // Progress tracking for forward journeys (0% = Shop, 100% = Home)
+  // ANIMATION PROGRESS STATES
   const [motoProgress, setMotoProgress] = useState(0);
   const [carProgress, setCarProgress] = useState(0);
   const [truckProgress, setTruckProgress] = useState(0);
@@ -45,15 +47,19 @@ export default function Home() {
       <section className="bg-gradient-to-b from-sky-900 via-slate-900 to-emerald-950/80 py-8 px-4 text-center">
         <div className="max-w-3xl mx-auto space-y-4">
           
-          {/* Brand Logo & Title Header */}
+          {/* BRAND LOGO & TITLE HEADER */}
           <div className="flex items-center justify-center gap-3 mb-2">
             <img 
-              src="/favicon.svg" 
+              src={logoImg} 
               alt="BravoMart Logo" 
-              className="h-10 w-10 md:h-12 md:w-12 object-contain filter drop-shadow-md"
+              className="h-12 w-auto object-contain filter drop-shadow-md"
+              onError={(e) => {
+                // Fallback attempt to root path if module import fails
+                e.currentTarget.src = '/bravomart-logo.png';
+              }}
             />
             <h1 className="text-2xl md:text-4xl font-black text-white tracking-tight leading-snug">
-              Local Merchants & Fast Dispatchers to Your Doorstep
+              Local & International Merchants, Fast Dispatchers to Your Doorstep
             </h1>
           </div>
           
@@ -131,7 +137,7 @@ export default function Home() {
           {/* SPLIT SCREEN GRID */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-            {/* ROUTE 1: MOTORCYCLE (SHOP LEFT -> RESIDENCE RIGHT) */}
+            {/* ROUTE 1: MOTORCYCLE */}
             <div className="bg-slate-900/60 backdrop-blur-md rounded-2xl p-4 border border-emerald-500/30">
               <div className="flex items-center justify-between mb-2 text-emerald-200">
                 <div className="flex items-center gap-2 bg-emerald-900/80 px-3 py-1.5 rounded-lg border border-emerald-600/50">
@@ -144,7 +150,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* ASPHALT ROAD */}
               <div className="h-20 bg-stone-800 border-y-2 border-dashed border-yellow-400/80 rounded-xl relative flex items-center px-2 overflow-hidden shadow-inner">
                 <div 
                   className="absolute text-3xl md:text-4xl filter drop-shadow-md select-none transition-opacity duration-300"
@@ -159,7 +164,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* ROUTE 2: CAR (SHOP LEFT -> RESIDENCE RIGHT) */}
+            {/* ROUTE 2: CAR */}
             <div className="bg-slate-900/60 backdrop-blur-md rounded-2xl p-4 border border-emerald-500/30">
               <div className="flex items-center justify-between mb-2 text-emerald-200">
                 <div className="flex items-center gap-2 bg-emerald-900/80 px-3 py-1.5 rounded-lg border border-emerald-600/50">
@@ -172,7 +177,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* ASPHALT ROAD */}
               <div className="h-20 bg-stone-800 border-y-2 border-dashed border-yellow-400/80 rounded-xl relative flex items-center px-2 overflow-hidden shadow-inner">
                 <div 
                   className="absolute text-3xl md:text-4xl filter drop-shadow-md select-none transition-opacity duration-300"
@@ -187,7 +191,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* ROUTE 3: TRUCK (SHOP LEFT -> RESIDENCE RIGHT) */}
+            {/* ROUTE 3: TRUCK */}
             <div className="md:col-span-2 bg-slate-900/60 backdrop-blur-md rounded-2xl p-4 border border-emerald-500/30">
               <div className="flex items-center justify-between mb-2 text-emerald-200">
                 <div className="flex items-center gap-2 bg-emerald-900/80 px-3 py-1.5 rounded-lg border border-emerald-600/50">
@@ -200,7 +204,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* ASPHALT ROAD */}
               <div className="h-20 bg-stone-800 border-y-2 border-dashed border-yellow-400/80 rounded-xl relative flex items-center px-2 overflow-hidden shadow-inner">
                 <div 
                   className="absolute text-3xl md:text-4xl filter drop-shadow-md select-none transition-opacity duration-300"
